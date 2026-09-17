@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import type { ProjectDto } from "../../domain/types"
 import { projectsService, type GetProjectsParams } from "../../infrastructure/api/projects.service"
 
 import { projectKeys } from "./projects.keys"
+
+import type { ProjectDto } from "../../domain/types"
 
 export const useProjectsPaginated = (params: GetProjectsParams) =>
   useQuery({

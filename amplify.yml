@@ -1,0 +1,23 @@
+# AWS Amplify Hosting build spec.
+#
+# Amplify runs this on every push to the connected branch. The environment variables the build
+# needs (VITE_SERVER_URL, VITE_DOMAIN, the two Cognito ids) are set on the Amplify app, not here —
+# src/infrastructure/config/env.ts throws at module load if any is missing, so a misconfigured
+# app fails the build with the variable named rather than shipping a broken bundle.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # ci rather than install: respects the lockfile, so a deploy builds what was tested.
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*

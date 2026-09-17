@@ -1,0 +1,48 @@
+name: CI
+
+# Amplify Hosting builds and deploys on push through its git integration, so this workflow exists
+# to catch problems earlier than Amplify would: a type error, a lint failure or a broken build
+# shows as a red check on the pull request, rather than as a failed deployment after merge.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # env.ts throws on a missing variable at module load, which a production build evaluates.
+      # Placeholder values prove the build works without putting real pool ids in the repo; the
+      # real ones are Amplify app environment variables.
+      - name: Build
+        env:
+          VITE_SERVER_URL: https://example.invalid
+          VITE_DOMAIN: https://example.invalid
+          VITE_AWS_COGNITO_USER_POOL_ID: ci-placeholder
+          VITE_AWS_COGNITO_USER_POOL_CLIENT_ID: ci-placeholder
+        run: npm run build

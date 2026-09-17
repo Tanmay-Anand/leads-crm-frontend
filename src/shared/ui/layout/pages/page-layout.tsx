@@ -1,5 +1,7 @@
 import React from "react"
+
 import { motion } from "motion/react"
+
 import { cn } from "@/shared/lib/utils"
 
 const containerVariants = {

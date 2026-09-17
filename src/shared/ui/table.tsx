@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { cn } from "@/shared/lib/utils"
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
 const CELL_WIDTH_LIMIT = 400
 function Table({ className, ...props }: React.ComponentProps<"table">) {

@@ -42,25 +42,34 @@ export function DataTableToolbar<TData>({
 
   const debouncedTerm = useDebouncedValue(term, 400)
 
-  // Keeps the input in step when the term is changed from outside, such as restoring it from the
-  // URL on a back navigation.
-  useEffect(() => {
+  /**
+   * Re-syncs the input when the term is changed from outside — a filter reset, or restoring
+   * state from the URL on a back navigation.
+   *
+   * Adjusted during render rather than in an effect. The effect version set state on every
+   * external change, which React 19 flags as a cascading render: the component painted the old
+   * term, then immediately re-rendered with the new one. Comparing against the last prop we saw
+   * does the same job before the first paint.
+   */
+  const [lastExternalTerm, setLastExternalTerm] = useState(globalFilter)
+  if (globalFilter !== lastExternalTerm) {
+    setLastExternalTerm(globalFilter)
     setTerm(globalFilter)
-  }, [globalFilter])
+  }
+
+  // The committed term, normalised. Below the minimum the server ignores the term anyway, so an
+  // empty search is sent rather than a request that quietly returns the unfiltered list.
+  const trimmed = debouncedTerm.trim()
+  const committedTerm = trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : ""
 
   useEffect(() => {
-    const trimmed = debouncedTerm.trim()
-
-    // Below the minimum the server would ignore the term anyway, so an empty search is sent
-    // instead of a request that quietly returns the unfiltered list.
-    const next = trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : ""
-    if (next !== globalFilter) {
-      onGlobalFilterChange(next, selectedScopes.join(","))
+    if (committedTerm !== globalFilter) {
+      onGlobalFilterChange(committedTerm, selectedScopes.join(","))
     }
-    // globalFilter is deliberately not a dependency: reacting to it here would fight the effect
-    // above and re-fire the search on every parent render.
+    // globalFilter and onGlobalFilterChange are deliberately omitted: the parent re-creates the
+    // callback each render, and reacting to globalFilter would re-fire the search it just caused.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedTerm, selectedScopes])
+  }, [committedTerm, selectedScopes])
 
   const toggleScope = (id: string) => {
     setSelectedScopes(current =>

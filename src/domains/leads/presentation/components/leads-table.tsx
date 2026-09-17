@@ -6,6 +6,7 @@ import { formatDate, titleCase } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { DataTable } from "@/shared/ui/common/data-table"
+import type { ColumnDef, PaginationState, SearchFilter, SortingState, VisibilityState } from "@/shared/ui/common/data-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,6 @@ import {
   DropdownMenuTrigger
 } from "@/shared/ui/dropdown-menu"
 
-import type { ColumnDef, PaginationState, SearchFilter, SortingState, VisibilityState } from "@/shared/ui/common/data-table"
 import type { LeadDto, SlaStatus } from "../../domain/types"
 
 /** Scopes offered in the toolbar search dropdown, keyed to the service field map. */

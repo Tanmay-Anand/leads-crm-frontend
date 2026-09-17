@@ -1,8 +1,9 @@
 import * as React from "react"
 
 import { cn } from "@/shared/lib/utils"
-import { Label } from "./label"
+
 import { ErrorMessage } from "./common/errors"
+import { Label } from "./label"
 
 export interface InputProps extends Omit<React.ComponentProps<"input">, "size"> {
   label?: React.ReactNode
