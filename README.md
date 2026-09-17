@@ -138,8 +138,10 @@ and export dialogs.
 - Hosted on Amplify rather than Vercel, which is what `builder-crm-ui` uses. The build spec moves
   from `vercel.json` to `amplify.yml` and the SPA rewrite from a Vercel rewrite to an Amplify
   custom rule; nothing in `src/` differs.
-- No `routeTree.gen.ts` in git; the Vite plugin regenerates it (it is gitignored, as in the
-  reference).
+- `src/routeTree.gen.ts` is committed, as it is in the reference. It is generated code, so the
+  instinct is to ignore it — but `npm run build` runs `tsc -b` before `vite build`, and the
+  plugin that generates it only runs during the Vite step. On a fresh clone the typecheck fails
+  before anything can generate it, which is exactly how the first Vercel deploy broke.
 - `Loader`'s branded wordmark variant is replaced by a plain page loader — that one was branding
   rather than a pattern.
 - Missing Cognito variables are fatal only in a production build. In development they warn, so the
