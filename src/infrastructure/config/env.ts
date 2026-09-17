@@ -5,9 +5,6 @@
  * with a named variable instead of surfacing later as an unexplained 401.
  */
 
-/** Without these the app cannot address the API at all, so a missing one is fatal everywhere. */
-const REQUIRED_ENV_VARS = ["VITE_SERVER_URL", "VITE_DOMAIN"]
-
 /**
  * Cognito identifiers.
  *
@@ -16,12 +13,6 @@ const REQUIRED_ENV_VARS = ["VITE_SERVER_URL", "VITE_DOMAIN"]
  * sign-in screen that explains what is wrong.
  */
 const REQUIRED_AUTH_ENV_VARS = ["VITE_AWS_COGNITO_USER_POOL_ID", "VITE_AWS_COGNITO_USER_POOL_CLIENT_ID"]
-
-REQUIRED_ENV_VARS.forEach(envVar => {
-  if (!import.meta.env[envVar as keyof ImportMetaEnv]) {
-    throw new Error(`Missing required environment variable: ${envVar}. Copy .env.example to .env and fill it in.`)
-  }
-})
 
 const missingAuthVars = REQUIRED_AUTH_ENV_VARS.filter(
   envVar => !import.meta.env[envVar as keyof ImportMetaEnv]
@@ -36,9 +27,19 @@ if (missingAuthVars.length > 0) {
 }
 
 export const env = {
-  /** API gateway origin, without a trailing slash. */
-  serverUrl: String(import.meta.env.VITE_SERVER_URL).replace(/\/$/, ""),
-  domain: String(import.meta.env.VITE_DOMAIN),
+  /**
+   * Origin to prefix API calls with. Empty means same-origin, which is the normal case.
+   *
+   * In production the API is reached through a rewrite on the hosting platform, so the browser
+   * talks to its own origin and the edge forwards to the backend. In development the Vite dev
+   * server proxies the same path. Either way a relative URL is correct, and — more to the point —
+   * it cannot be wrong: it always matches whatever domain is serving the page. Hard-coding the
+   * deployment URL here is how three separate deploys broke.
+   *
+   * Set VITE_SERVER_URL only to point at a backend somewhere else, such as a colleague's machine
+   * or a staging box. It is an override, not a requirement.
+   */
+  serverUrl: (import.meta.env.VITE_SERVER_URL ?? "").replace(/\/$/, ""),
   cognito: {
     userPoolId: String(import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID ?? ""),
     userPoolClientId: String(import.meta.env.VITE_AWS_COGNITO_USER_POOL_CLIENT_ID ?? ""),

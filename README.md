@@ -16,7 +16,10 @@ npm install
 cp .env.example .env && npm run dev
 ```
 
-The backend must be running at `VITE_SERVER_URL` (default `http://localhost:8090`).
+Fill in the two Cognito values and nothing else. The backend is reached at a **relative** path
+(`/leads-crm/...`), which the Vite dev server proxies to `http://localhost:8090` — so start the
+backend and it just works. `VITE_SERVER_URL` is an override for pointing at a backend elsewhere,
+and is normally left unset.
 
 Without Cognito configured the app still runs and shows the sign-in screen with an explanatory
 banner; sign-in itself will not work until a pool exists. See the backend README for
@@ -83,6 +86,11 @@ anything renders, sharing the cache entry the provider already populated, and re
 **API client.** Fetch-based, with a module-scoped token cache, a shared in-flight refresh so six
 concurrent requests make one Amplify round-trip, a single retry on 401 for the expiry race, and
 uniform error handling. `api.getService("leads")` returns a client with that resource prefixed.
+
+Its base URL is **relative**. The dev server proxies `/leads-crm` to the local backend and the
+hosting platform rewrites it to the deployed one, so requests are same-origin in both — which
+means no CORS anywhere, and no deployment URL compiled into the bundle that could be wrong. An
+absolute `VITE_SERVER_URL` remains available as an override.
 
 **Lists.** One `DataTable` over a TanStack Table instance in fully manual mode — paging, sorting
 and filtering all happen on the server, so letting the table sort its one loaded page would

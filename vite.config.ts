@@ -24,6 +24,16 @@ export default defineConfig({
       "@": path.resolve(dirname, "./src")
     }
   },
+  server: {
+    proxy: {
+      // Mirrors the rewrite the hosting platform applies in production, so the API is same-origin
+      // in development too and the two environments cannot drift apart.
+      "/leads-crm": {
+        target: process.env.VITE_DEV_API_TARGET ?? "http://localhost:8090",
+        changeOrigin: true
+      }
+    }
+  },
   build: {
     sourcemap: false,
     chunkSizeWarningLimit: 1500,

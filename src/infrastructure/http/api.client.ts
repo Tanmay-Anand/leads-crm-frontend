@@ -224,7 +224,9 @@ export const api = {
    * Use it when you need control over the whole path, or when working across several resources.
    */
   getClient(baseInit?: RequestInit) {
-    const serviceUrl = `${env.serverUrl}${CONTEXT_PATH}`
+    // Relative unless an override is configured. A relative base always matches the origin
+    // serving the page, so the API cannot end up pointed at the wrong deployment.
+    const serviceUrl = env.serverUrl ? `${env.serverUrl}${CONTEXT_PATH}` : CONTEXT_PATH
 
     return {
       serviceUrl,
