@@ -1,4 +1,4 @@
-import { Building2, Handshake, UserCog, Users } from "lucide-react"
+import { Building2, CalendarClock, Handshake, UserCog, Users } from "lucide-react"
 
 import type { Resource } from "@/domains/authorization/domain/permission.types"
 
@@ -21,6 +21,7 @@ export interface SidebarItem {
  */
 export const sidebarItems: SidebarItem[] = [
   { label: "Leads", to: "/leads", icon: Users, resource: "leads" },
+  { label: "Meetings", to: "/meetings", icon: CalendarClock, resource: "leads" },
   { label: "Projects", to: "/projects", icon: Building2, resource: "projects" },
   { label: "Channel Partners", to: "/channel-partners", icon: Handshake, resource: "channel-partners" },
   { label: "User Management", to: "/user-management/users", icon: UserCog, resource: "users" }

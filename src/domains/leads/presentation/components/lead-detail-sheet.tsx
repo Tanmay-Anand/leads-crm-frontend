@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 
 import { Pencil, Plus } from "lucide-react"
 
+import { LeadMeetingsPanel } from "@/domains/meetings/presentation/components/lead-meetings-panel"
 import { useProjectNames } from "@/domains/project/presentation/hooks/use-projects"
 import { broadcastLeadClosed, broadcastLeadOpened } from "@/shared/lib/ai-sdk-broadcast"
 import { formatDate, titleCase } from "@/shared/lib/utils"
@@ -121,6 +122,9 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex-1">
               Activity
+            </TabsTrigger>
+            <TabsTrigger value="meetings" className="flex-1">
+              Meetings
             </TabsTrigger>
           </TabsList>
 
@@ -264,6 +268,10 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
                 ))}
               </ul>
             )}
+          </TabsContent>
+
+          <TabsContent value="meetings" className="min-h-0 flex-1 overflow-y-auto pt-4">
+            <LeadMeetingsPanel lead={current} />
           </TabsContent>
         </Tabs>
       </SheetContent>
