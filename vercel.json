@@ -5,6 +5,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/engageto-api/:path*",
+      "destination": "https://connect.engageto.in/api/:path*"
+    },
+    {
       "source": "/leads-crm/:path*",
       "destination": "http://15.252.85.128/leads-crm/:path*"
     },
