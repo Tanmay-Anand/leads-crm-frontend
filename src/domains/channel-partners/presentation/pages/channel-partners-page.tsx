@@ -8,6 +8,7 @@ import { Button } from "@/shared/ui/button"
 import { DataTable, sortingToApiFormat } from "@/shared/ui/common/data-table"
 import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
+import { usePermission } from "@/shared/ui/common/require-permission"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +54,9 @@ export default function ChannelPartnersPage() {
 
   const { data: stats, isLoading: statsLoading } = useChannelPartnerStats()
   const deletePartner = useDeleteChannelPartner()
+  const { hasPermission } = usePermission()
+  const canUpdate = hasPermission("update", "channel-partners")
+  const canDelete = hasPermission("delete", "channel-partners")
 
   const { data: page, isFetching } = useChannelPartnersPaginated({
     page: pagination.pageIndex,
@@ -175,6 +179,7 @@ export default function ChannelPartnersPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" onClick={event => event.stopPropagation()}>
               <DropdownMenuItem
+                disabled={!canUpdate}
                 onClick={() => {
                   setEditing(row.original)
                   setFormOpen(true)
@@ -183,7 +188,11 @@ export default function ChannelPartnersPage() {
                 <Pencil className="size-3.5" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => handleDelete(row.original)}>
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={!canDelete}
+                onClick={() => handleDelete(row.original)}
+              >
                 <Trash2 className="size-3.5" />
                 Delete
               </DropdownMenuItem>
@@ -192,8 +201,10 @@ export default function ChannelPartnersPage() {
         )
       }
     ],
+    // handleDelete closes over a stable mutation; recreating the columns on every render would
+    // remount every cell.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [canUpdate, canDelete]
   )
 
   return (
@@ -235,13 +246,15 @@ export default function ChannelPartnersPage() {
         lockedColumns={["name", "actions"]}
         config={{
           showFilter: false,
-          addButton: {
-            label: "New partner",
-            onClick: () => {
-              setEditing(null)
-              setFormOpen(true)
-            }
-          }
+          addButton: hasPermission("add", "channel-partners")
+            ? {
+                label: "New partner",
+                onClick: () => {
+                  setEditing(null)
+                  setFormOpen(true)
+                }
+              }
+            : undefined
         }}
       />
 

@@ -36,6 +36,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm run test
+
       # env.ts throws on a missing variable at module load, which a production build evaluates.
       # Placeholder values prove the build works without putting real pool ids in the repo; the
       # real ones are Amplify app environment variables.
