@@ -14,6 +14,7 @@ export function DataTableView<TData>({
   isLoading,
   onRowClick,
   getRowClassName,
+  getRowDataAttributes,
   classNames
 }: DataTableViewProps<TData>) {
   const columnCount = table.getVisibleLeafColumns().length
@@ -85,6 +86,7 @@ export function DataTableView<TData>({
                   classNames?.row,
                   getRowClassName?.(row.original)
                 )}
+                {...getRowDataAttributes?.(row.original)}
               >
                 {row.getVisibleCells().map(cell => (
                   <TableCell key={cell.id} className="max-w-[18rem] truncate">

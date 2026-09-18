@@ -52,6 +52,7 @@ export interface DataTableProps<TData> {
 
   onRowClick?: (row: TData) => void
   getRowClassName?: (row: TData) => string
+  getRowDataAttributes?: (row: TData) => Record<string, string>
 }
 
 /**
@@ -86,7 +87,8 @@ export function DataTable<TData>({
   onFilterSearch,
   onFilterReset,
   onRowClick,
-  getRowClassName
+  getRowClassName,
+  getRowDataAttributes
 }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
@@ -136,6 +138,7 @@ export function DataTable<TData>({
         isLoading={isLoading}
         onRowClick={onRowClick}
         getRowClassName={getRowClassName}
+        getRowDataAttributes={getRowDataAttributes}
       />
 
       {config?.showPagination !== false && (

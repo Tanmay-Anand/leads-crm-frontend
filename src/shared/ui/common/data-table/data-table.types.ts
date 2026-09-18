@@ -64,6 +64,12 @@ export interface DataTableViewProps<TData> {
   isLoading?: boolean
   onRowClick?: (row: TData) => void
   getRowClassName?: (row: TData) => string
+  /**
+   * Optional data-* attributes for each row, e.g. `{ 'data-lead-id': row.id }` so an external
+   * consumer (the browser extension's content-script click detection) can identify which record
+   * a click landed on without this table knowing anything about extensions.
+   */
+  getRowDataAttributes?: (row: TData) => Record<string, string>
   classNames?: {
     row?: string
     header?: string
