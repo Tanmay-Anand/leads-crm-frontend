@@ -32,6 +32,15 @@ export default defineConfig({
       "/leads-crm": {
         target: process.env.VITE_DEV_API_TARGET ?? "http://localhost:8090",
         changeOrigin: true
+      },
+      // Engageto's WhatsApp API has no CORS allowance for a browser origin, so the browser cannot
+      // call it directly in dev. Proxying it same-origin sidesteps that; changeOrigin makes
+      // Engageto see its own host in the Host header rather than localhost.
+      "/engageto-api": {
+        target: "https://connect.engageto.in",
+        changeOrigin: true,
+        secure: true,
+        rewrite: path => path.replace(/^\/engageto-api/, "/api")
       }
     }
   },

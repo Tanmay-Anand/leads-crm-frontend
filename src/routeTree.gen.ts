@@ -17,6 +17,7 @@ import { Route as ProtectedUserManagementRouteRouteImport } from './routes/_prot
 import { Route as AuthSigninIndexRouteImport } from './routes/_auth/signin/index'
 import { Route as ProtectedChannelPartnersIndexRouteImport } from './routes/_protected/channel-partners/index'
 import { Route as ProtectedLeadsIndexRouteImport } from './routes/_protected/leads/index'
+import { Route as ProtectedMeetingsIndexRouteImport } from './routes/_protected/meetings/index'
 import { Route as ProtectedProjectsIndexRouteImport } from './routes/_protected/projects/index'
 import { Route as ProtectedUserManagementRolesIndexRouteImport } from './routes/_protected/user-management/roles/index'
 import { Route as ProtectedUserManagementUsersIndexRouteImport } from './routes/_protected/user-management/users/index'
@@ -61,6 +62,11 @@ const ProtectedLeadsIndexRoute = ProtectedLeadsIndexRouteImport.update({
   path: '/leads/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const ProtectedMeetingsIndexRoute = ProtectedMeetingsIndexRouteImport.update({
+  id: '/meetings/',
+  path: '/meetings/',
+  getParentRoute: () => ProtectedRouteRoute,
+} as any)
 const ProtectedProjectsIndexRoute = ProtectedProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/signin/': typeof AuthSigninIndexRoute
   '/channel-partners/': typeof ProtectedChannelPartnersIndexRoute
   '/leads/': typeof ProtectedLeadsIndexRoute
+  '/meetings/': typeof ProtectedMeetingsIndexRoute
   '/projects/': typeof ProtectedProjectsIndexRoute
   '/user-management/roles/': typeof ProtectedUserManagementRolesIndexRoute
   '/user-management/users/': typeof ProtectedUserManagementUsersIndexRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/signin': typeof AuthSigninIndexRoute
   '/channel-partners': typeof ProtectedChannelPartnersIndexRoute
   '/leads': typeof ProtectedLeadsIndexRoute
+  '/meetings': typeof ProtectedMeetingsIndexRoute
   '/projects': typeof ProtectedProjectsIndexRoute
   '/user-management/roles': typeof ProtectedUserManagementRolesIndexRoute
   '/user-management/users': typeof ProtectedUserManagementUsersIndexRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_auth/signin/': typeof AuthSigninIndexRoute
   '/_protected/channel-partners/': typeof ProtectedChannelPartnersIndexRoute
   '/_protected/leads/': typeof ProtectedLeadsIndexRoute
+  '/_protected/meetings/': typeof ProtectedMeetingsIndexRoute
   '/_protected/projects/': typeof ProtectedProjectsIndexRoute
   '/_protected/user-management/roles/': typeof ProtectedUserManagementRolesIndexRoute
   '/_protected/user-management/users/': typeof ProtectedUserManagementUsersIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/signin/'
     | '/channel-partners/'
     | '/leads/'
+    | '/meetings/'
     | '/projects/'
     | '/user-management/roles/'
     | '/user-management/users/'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/channel-partners'
     | '/leads'
+    | '/meetings'
     | '/projects'
     | '/user-management/roles'
     | '/user-management/users'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/_auth/signin/'
     | '/_protected/channel-partners/'
     | '/_protected/leads/'
+    | '/_protected/meetings/'
     | '/_protected/projects/'
     | '/_protected/user-management/roles/'
     | '/_protected/user-management/users/'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedLeadsIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/meetings/': {
+      id: '/_protected/meetings/'
+      path: '/meetings'
+      fullPath: '/meetings/'
+      preLoaderRoute: typeof ProtectedMeetingsIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
     '/_protected/projects/': {
       id: '/_protected/projects/'
       path: '/projects'
@@ -276,6 +295,7 @@ interface ProtectedRouteRouteChildren {
   ProtectedForbiddenRoute: typeof ProtectedForbiddenRoute
   ProtectedChannelPartnersIndexRoute: typeof ProtectedChannelPartnersIndexRoute
   ProtectedLeadsIndexRoute: typeof ProtectedLeadsIndexRoute
+  ProtectedMeetingsIndexRoute: typeof ProtectedMeetingsIndexRoute
   ProtectedProjectsIndexRoute: typeof ProtectedProjectsIndexRoute
 }
 
@@ -285,6 +305,7 @@ const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedForbiddenRoute: ProtectedForbiddenRoute,
   ProtectedChannelPartnersIndexRoute: ProtectedChannelPartnersIndexRoute,
   ProtectedLeadsIndexRoute: ProtectedLeadsIndexRoute,
+  ProtectedMeetingsIndexRoute: ProtectedMeetingsIndexRoute,
   ProtectedProjectsIndexRoute: ProtectedProjectsIndexRoute,
 }
 

@@ -1,8 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Pencil, Plus } from "lucide-react"
 
-import { formatDate, titleCase } from "@/shared/lib/utils"
+import { LeadMeetingsPanel } from "@/domains/meetings/presentation/components/lead-meetings-panel"
+import { useProjectNames } from "@/domains/project/presentation/hooks/use-projects"
+import { broadcastLeadClosed, broadcastLeadOpened } from "@/shared/lib/ai-sdk-broadcast"
+import { cn, formatDate, titleCase, toDialablePhoneNumber } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
@@ -12,7 +15,14 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import { Textarea } from "@/shared/ui/textarea"
 
-import { useAddLeadNote, useLead, useLeadNotes, useLeadStatuses, useUpdateLeadStatus } from "../hooks/use-leads"
+import {
+  useAddLeadNote,
+  useLead,
+  useLeadNotes,
+  useLeadStatuses,
+  useUpdateLeadStatus,
+  useWhatsAppMessages
+} from "../hooks/use-leads"
 
 import type { LeadDto, LeadNoteType } from "../../domain/types"
 
@@ -32,8 +42,31 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
 
   const { data: notes } = useLeadNotes(lead?.id)
   const { data: statuses } = useLeadStatuses()
+  const { data: projectNames } = useProjectNames()
   const updateStatus = useUpdateLeadStatus()
   const addNote = useAddLeadNote()
+
+  const whatsappNumber = toDialablePhoneNumber(current?.mobile, current?.countryCode)
+  const {
+    data: waMessages,
+    isLoading: waLoading,
+    isError: waIsError
+  } = useWhatsAppMessages(whatsappNumber || undefined)
+  const projectName = current?.projectId
+    ? (projectNames?.find(project => project.id === current.projectId)?.name ?? null)
+    : null
+
+  // Broadcast whatever lead is open (or that none is) for anything listening on the page - the
+  // extension's content script chiefly. Keyed on id/projectId/name rather than object identity,
+  // since react-query hands back a new `current` reference on every refetch and re-announcing
+  // the same lead as closed-then-reopened on each of those would be noise, not a real event.
+  useEffect(() => {
+    if (!current) return
+    broadcastLeadOpened(current, projectName)
+    return () => broadcastLeadClosed()
+    // current itself is deliberately not a dep - see the comment above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id, current?.projectId, projectName])
 
   const [noteBody, setNoteBody] = useState("")
   const [noteType, setNoteType] = useState<LeadNoteType>("NOTE")
@@ -102,6 +135,12 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex-1">
               Activity
+            </TabsTrigger>
+            <TabsTrigger value="meetings" className="flex-1">
+              Meetings
+               </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="flex-1">
+              WhatsApp Chat
             </TabsTrigger>
           </TabsList>
 
@@ -244,6 +283,60 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
                   </li>
                 ))}
               </ul>
+            )}
+          </TabsContent>
+
+          <TabsContent value="meetings" className="min-h-0 flex-1 overflow-y-auto pt-4">
+            <LeadMeetingsPanel lead={current} />
+              </TabsContent>
+          <TabsContent value="whatsapp" className="min-h-0 flex-1 overflow-y-auto pt-4">
+            {waLoading ? (
+              <p className="text-muted-foreground py-6 text-center text-sm">Loading conversation…</p>
+            ) : waIsError ? (
+              <p className="text-muted-foreground py-6 text-center text-sm">
+                Couldn&apos;t load the WhatsApp conversation.
+              </p>
+            ) : !waMessages || waMessages.data.length === 0 ? (
+              <p className="text-muted-foreground py-6 text-center text-sm">No WhatsApp conversation yet.</p>
+            ) : (
+              <div className="space-y-2 pb-2">
+                {[...waMessages.data].reverse().map(message => {
+                  // Engageto's own status enum: 6 is every message that reads as an inbound reply
+                  // from the contact; 2/3/5 show up on business-sent messages. Used here only to
+                  // pick which side of the thread a bubble sits on.
+                  const inbound = message.status === 6
+                  return (
+                    <div key={message.id} className={cn("flex", inbound ? "justify-start" : "justify-end")}>
+                      <div
+                        className={cn(
+                          "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                          inbound ? "bg-muted" : "bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {message.templateMediaType === "image" && message.mediaUrl && (
+                          <img
+                            src={message.mediaUrl}
+                            alt={message.mediaCaption ?? "Shared image"}
+                            className="mb-1 max-h-48 rounded-md object-cover"
+                          />
+                        )}
+                        {message.templateMediaType === "video" && message.mediaUrl && (
+                          <video src={message.mediaUrl} controls className="mb-1 max-h-48 rounded-md" />
+                        )}
+                        {message.textMessage && <p className="whitespace-pre-wrap">{message.textMessage}</p>}
+                        <p
+                          className={cn(
+                            "mt-1 text-right text-[10px]",
+                            inbound ? "text-muted-foreground" : "text-primary-foreground/70"
+                          )}
+                        >
+                          {formatDate(message.createdAt, true)}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             )}
           </TabsContent>
         </Tabs>
