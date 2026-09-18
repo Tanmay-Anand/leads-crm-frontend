@@ -1,7 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Pencil, Plus } from "lucide-react"
 
+import { useProjectNames } from "@/domains/project/presentation/hooks/use-projects"
+import { broadcastLeadClosed, broadcastLeadOpened } from "@/shared/lib/ai-sdk-broadcast"
 import { formatDate, titleCase } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -32,8 +34,25 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
 
   const { data: notes } = useLeadNotes(lead?.id)
   const { data: statuses } = useLeadStatuses()
+  const { data: projectNames } = useProjectNames()
   const updateStatus = useUpdateLeadStatus()
   const addNote = useAddLeadNote()
+
+  const projectName = current?.projectId
+    ? (projectNames?.find(project => project.id === current.projectId)?.name ?? null)
+    : null
+
+  // Broadcast whatever lead is open (or that none is) for anything listening on the page - the
+  // extension's content script chiefly. Keyed on id/projectId/name rather than object identity,
+  // since react-query hands back a new `current` reference on every refetch and re-announcing
+  // the same lead as closed-then-reopened on each of those would be noise, not a real event.
+  useEffect(() => {
+    if (!current) return
+    broadcastLeadOpened(current, projectName)
+    return () => broadcastLeadClosed()
+    // current itself is deliberately not a dep - see the comment above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id, current?.projectId, projectName])
 
   const [noteBody, setNoteBody] = useState("")
   const [noteType, setNoteType] = useState<LeadNoteType>("NOTE")

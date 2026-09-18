@@ -194,6 +194,14 @@ export default function ProjectsPage() {
         columns={columns}
         data={page?.content ?? []}
         getRowId={project => project.id ?? project.name}
+        // Same data-ai-sdk-* convention leads-table.tsx already stamps its rows with (see the
+        // comment there) - lets a click-detection listener identify a project row the same way,
+        // without this table knowing who is listening.
+        getRowDataAttributes={project => ({
+          "data-project-id": project.id ?? "",
+          "data-ai-sdk-entity": "Project",
+          "data-ai-sdk-id": project.id ?? ""
+        })}
         isLoading={isFetching}
         totalElements={page?.totalElements}
         pageCount={page?.totalPages}
