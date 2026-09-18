@@ -114,7 +114,9 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
     <Sheet open={Boolean(lead)} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg">
         <SheetHeader>
-          <div className="flex items-start justify-between gap-2">
+          {/* pr-8 clears the Sheet's own close button, which is absolutely positioned at
+              top-4 right-4 - without it, this row's Edit button sits directly underneath it. */}
+          <div className="flex items-start justify-between gap-2 pr-8">
             <div>
               <SheetTitle>{fullName}</SheetTitle>
               <SheetDescription>

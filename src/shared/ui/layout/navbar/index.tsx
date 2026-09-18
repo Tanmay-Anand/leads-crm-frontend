@@ -29,10 +29,20 @@ export function NavbarHeader({ className }: { className?: string }) {
 
   return (
     <header className={cn("flex h-12 items-center justify-end gap-2 px-4", className)}>
+      {/* This header sits on the dark bg-sidebar background (inherited from its parent wrapper
+          in main-layout.tsx, not set here), not the app's usual light bg-background - a plain
+          ghost button inherits text-foreground, a near-black colour meant for the light content
+          area, and disappears here. text-sidebar-foreground is the token already defined for
+          exactly this background. */}
       <Button
         variant="ghost"
         size="icon"
         aria-label="Toggle theme"
+        aria-pressed={theme === "dark"}
+        className={cn(
+          "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+          theme === "dark" && "bg-accent/20 text-accent hover:bg-accent/25 hover:text-accent"
+        )}
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       >
         {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
@@ -40,7 +50,12 @@ export function NavbarHeader({ className }: { className?: string }) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Account menu">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Account menu"
+            className="hover:bg-sidebar-accent/60"
+          >
             <span className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full text-xs font-medium">
               {initials}
             </span>

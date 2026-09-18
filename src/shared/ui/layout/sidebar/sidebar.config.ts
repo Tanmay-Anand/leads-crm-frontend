@@ -1,4 +1,4 @@
-import { Building2, CalendarClock, Handshake, UserCog, Users } from "lucide-react"
+import { Building2, CalendarClock, UserCog, Users } from "lucide-react"
 
 import type { Resource } from "@/domains/authorization/domain/permission.types"
 
