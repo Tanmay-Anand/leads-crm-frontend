@@ -20,8 +20,9 @@ import { Input } from "@/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 
-import type { ChannelPartnerDto } from "../../domain/types"
 import { useCreateChannelPartner, useUpdateChannelPartner } from "../hooks/use-channel-partners"
+
+import type { ChannelPartnerDto } from "../../domain/types"
 
 const PARTNER_TYPES = ["CHANNEL_PARTNER", "BROKER"] as const
 const TIERS = ["SILVER", "GOLD", "PLATINUM"] as const

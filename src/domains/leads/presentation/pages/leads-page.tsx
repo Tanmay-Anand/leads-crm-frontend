@@ -4,18 +4,19 @@ import { CalendarClock, CheckCircle2, UserMinus, Users } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { AdvancedFilterDrawer } from "@/shared/ui/common/advanced-filter"
-import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
 import { sortingToApiFormat } from "@/shared/ui/common/data-table"
+import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
 import { Page, PageHeader } from "@/shared/ui/layout/pages"
 
 import { useLeadsFilterStore } from "../../application/store/leads-filter.store"
-import type { FilterCriterion } from "../../domain/advanced-filter.types"
-import type { LeadDto } from "../../domain/types"
 import { toLeadSearchFields } from "../../infrastructure/api/leads.service"
 import { LeadDetailSheet } from "../components/lead-detail-sheet"
 import { LeadFormDialog } from "../components/lead-form-dialog"
 import { LeadsTable } from "../components/leads-table"
 import { useDeleteLead, useLeadFilterFields, useLeadsPaginated, useLeadSummary } from "../hooks/use-leads"
+
+import type { FilterCriterion } from "../../domain/advanced-filter.types"
+import type { LeadDto } from "../../domain/types"
 
 export default function LeadsPage() {
   const { filters, pagination, sorting, setFilters, setPagination, setSorting, resetFilters } =

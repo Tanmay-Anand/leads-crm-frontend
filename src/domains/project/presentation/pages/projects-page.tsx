@@ -7,6 +7,7 @@ import { formatDate, titleCase } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { DataTable, sortingToApiFormat } from "@/shared/ui/common/data-table"
+import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
 import {
   DropdownMenu,
@@ -16,13 +17,13 @@ import {
 } from "@/shared/ui/dropdown-menu"
 import { Page, PageHeader } from "@/shared/ui/layout/pages"
 
-import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 
 import { useProjectsFilterStore } from "../../application/store/projects-filter.store"
-import type { ProjectDto } from "../../domain/types"
 import { toProjectSearchFields } from "../../infrastructure/api/projects.service"
 import { ProjectFormDialog } from "../components/project-form-dialog"
 import { useDeleteProject, useProjectsPaginated, useProjectStats } from "../hooks/use-projects"
+
+import type { ProjectDto } from "../../domain/types"
 
 const SEARCH_SCOPES: SearchFilter[] = [
   { id: "name", displayName: "Name" },

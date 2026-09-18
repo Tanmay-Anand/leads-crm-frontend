@@ -12,8 +12,9 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import { Textarea } from "@/shared/ui/textarea"
 
-import type { LeadDto, LeadNoteType } from "../../domain/types"
 import { useAddLeadNote, useLead, useLeadNotes, useLeadStatuses, useUpdateLeadStatus } from "../hooks/use-leads"
+
+import type { LeadDto, LeadNoteType } from "../../domain/types"
 
 const NOTE_TYPES: LeadNoteType[] = ["NOTE", "CALL", "WHATSAPP", "EMAIL", "SITE_VISIT", "DOCUMENT_LINK"]
 

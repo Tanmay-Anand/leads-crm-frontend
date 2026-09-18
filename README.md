@@ -16,11 +16,44 @@ npm install
 cp .env.example .env && npm run dev
 ```
 
-The backend must be running at `VITE_SERVER_URL` (default `http://localhost:8090`).
+Fill in the two Cognito values and nothing else. The backend is reached at a **relative** path
+(`/leads-crm/...`), which the Vite dev server proxies to `http://localhost:8090` — so start the
+backend and it just works. `VITE_SERVER_URL` is an override for pointing at a backend elsewhere,
+and is normally left unset.
 
 Without Cognito configured the app still runs and shows the sign-in screen with an explanatory
 banner; sign-in itself will not work until a pool exists. See the backend README for
 `scripts/provision-cognito.sh`.
+
+## Deployment
+
+Hosted on **AWS Amplify Hosting**, which builds from `amplify.yml` on every push to `main`.
+
+**1. Create and connect the app.** In the
+[Amplify console](https://console.aws.amazon.com/amplify): *Create new app* → *GitHub* → authorise
+the AWS Amplify GitHub App → pick `Tanmay-Anand/leads-crm-frontend`, branch `main`. Amplify detects
+`amplify.yml` on its own; do not let it generate one.
+
+This step is deliberately manual. Connecting a repository from the CLI needs a GitHub personal
+access token passed to `create-app`, which is a worse trade than clicking through the OAuth flow
+once.
+
+**2. Configure it** from the backend repo, which knows the Cognito and CloudFront values:
+
+```bash
+API_URL=https://<cloudfront-domain> AWS_PROFILE=personal ./scripts/provision-amplify.sh
+```
+
+That sets the five `VITE_*` variables and the SPA rewrite. The rewrite matters: without it `/leads`
+returns 404 on a hard refresh, because the router owns that path but Amplify looks for a file at it.
+
+**3. Allow the origin on the API.** Set `APP_CORS_ORIGINS` in the host's `/opt/leads-crm/.env` to
+the Amplify URL and restart the stack. Until then the site loads and every request is blocked by
+CORS — it fails only in the browser, so `curl` against the API will look perfectly healthy.
+
+Environment variables live on the Amplify app, never in the repo. `env.ts` throws at module load
+if one is missing, so a misconfigured app fails the build with the variable named rather than
+shipping a bundle that breaks at runtime.
 
 ## Structure
 
@@ -53,6 +86,11 @@ anything renders, sharing the cache entry the provider already populated, and re
 **API client.** Fetch-based, with a module-scoped token cache, a shared in-flight refresh so six
 concurrent requests make one Amplify round-trip, a single retry on 401 for the expiry race, and
 uniform error handling. `api.getService("leads")` returns a client with that resource prefixed.
+
+Its base URL is **relative**. The dev server proxies `/leads-crm` to the local backend and the
+hosting platform rewrites it to the deployed one, so requests are same-origin in both — which
+means no CORS anywhere, and no deployment URL compiled into the bundle that could be wrong. An
+absolute `VITE_SERVER_URL` remains available as an override.
 
 **Lists.** One `DataTable` over a TanStack Table instance in fully manual mode — paging, sorting
 and filtering all happen on the server, so letting the table sort its one loaded page would
@@ -105,8 +143,13 @@ and export dialogs.
 
 ### 6. Smaller things
 
-- No `routeTree.gen.ts` in git; the Vite plugin regenerates it (it is gitignored, as in the
-  reference).
+- Hosted on Amplify rather than Vercel, which is what `builder-crm-ui` uses. The build spec moves
+  from `vercel.json` to `amplify.yml` and the SPA rewrite from a Vercel rewrite to an Amplify
+  custom rule; nothing in `src/` differs.
+- `src/routeTree.gen.ts` is committed, as it is in the reference. It is generated code, so the
+  instinct is to ignore it — but `npm run build` runs `tsc -b` before `vite build`, and the
+  plugin that generates it only runs during the Vite step. On a fresh clone the typecheck fails
+  before anything can generate it, which is exactly how the first Vercel deploy broke.
 - `Loader`'s branded wordmark variant is replaced by a plain page loader — that one was branding
   rather than a pattern.
 - Missing Cognito variables are fatal only in a production build. In development they warn, so the
@@ -119,6 +162,10 @@ and export dialogs.
 - `tsc -b --force` — no type errors under `strict`, `noUnusedLocals`, `noUnusedParameters`.
 - Dev server renders: `/` redirects to `/leads`, the guard redirects to `/signin`, and the sign-in
   screen renders with the design system intact.
+- Against the provisioned pool, a deliberately wrong password returns *"Incorrect email or
+  password"* — so Amplify reaches Cognito in `ap-south-1`, SRP works, and the Cognito error
+  mapping in `auth-errors.ts` works.
 
 The authenticated shell — the three list screens, their tables and forms — has not been exercised
-against live data, because both the route guard and the API require a real Cognito token.
+against live data. The first user is in `FORCE_CHANGE_PASSWORD` and only the account owner has the
+temporary password Cognito emailed.

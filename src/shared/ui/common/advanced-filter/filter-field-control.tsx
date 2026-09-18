@@ -1,9 +1,9 @@
-import { useFilterOptions } from "@/domains/leads/presentation/hooks/use-leads"
 import type {
   FilterCriterion,
   FilterFieldDto,
   FilterOperator
 } from "@/domains/leads/domain/advanced-filter.types"
+import { useFilterOptions } from "@/domains/leads/presentation/hooks/use-leads"
 import { Checkbox } from "@/shared/ui/checkbox"
 import { Input } from "@/shared/ui/input"
 import { Label } from "@/shared/ui/label"

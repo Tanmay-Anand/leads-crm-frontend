@@ -1,6 +1,5 @@
-import { createRouter, RouterProvider as TanstackRouterProvider } from "@tanstack/react-router"
-import type { QueryClient } from "@tanstack/react-query"
 import { useQueryClient } from "@tanstack/react-query"
+import { createRouter, RouterProvider as TanstackRouterProvider } from "@tanstack/react-router"
 
 import { Loader } from "@/shared/ui/loader"
 
@@ -9,6 +8,7 @@ import { routeTree } from "../../routeTree.gen"
 import { useAuth } from "./auth-provider"
 
 import type { AuthContextType } from "./auth-provider"
+import type { QueryClient } from "@tanstack/react-query"
 
 export interface RouterContext {
   auth: AuthContextType | undefined

@@ -1,8 +1,9 @@
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon, X } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { cn } from "../lib/utils"
 import { createPortal } from "react-dom"
+import { Toaster as Sonner, type ToasterProps } from "sonner"
+
+import { cn } from "../lib/utils"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()

@@ -1,7 +1,8 @@
-import type { LucideIcon } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
 import { Skeleton } from "@/shared/ui/skeleton"
+
+import type { LucideIcon } from "lucide-react"
 
 export interface KpiCardProps {
   label: string

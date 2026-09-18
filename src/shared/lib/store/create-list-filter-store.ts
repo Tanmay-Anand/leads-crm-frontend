@@ -1,8 +1,9 @@
 import { create } from "zustand"
 
+import { DEFAULT_PAGE_SIZE } from "@/shared/ui/common/data-table/table-utils"
+
 import type { SortingState, VisibilityState } from "@tanstack/react-table"
 
-import { DEFAULT_PAGE_SIZE } from "@/shared/ui/common/data-table/table-utils"
 
 /** Filter state every list screen has, whatever else it adds on top. */
 export interface BaseListFilters {

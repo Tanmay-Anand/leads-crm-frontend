@@ -1,8 +1,8 @@
 import * as React from "react"
 
 import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { motion } from "motion/react"
 import { XIcon } from "lucide-react"
+import { motion } from "motion/react"
 
 import { cn } from "@/shared/lib/utils"
 

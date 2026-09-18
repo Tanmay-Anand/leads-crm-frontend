@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import type { ChannelPartnerDto } from "../../domain/types"
 import {
   channelPartnersService,
   type GetChannelPartnersParams
 } from "../../infrastructure/api/channel-partners.service"
 
 import { channelPartnerKeys } from "./channel-partners.keys"
+
+import type { ChannelPartnerDto } from "../../domain/types"
 
 export const useChannelPartnersPaginated = (params: GetChannelPartnersParams) =>
   useQuery({

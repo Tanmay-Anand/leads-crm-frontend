@@ -13,8 +13,8 @@ import {
   type FieldValues
 } from "react-hook-form"
 
-import { Label } from "@/shared/ui/label"
 import { cn } from "@/shared/lib/utils"
+import { Label } from "@/shared/ui/label"
 
 import type * as LabelPrimitive from "@radix-ui/react-label"
 

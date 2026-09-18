@@ -3,6 +3,10 @@ import { toast } from "sonner"
 
 import type { FilterOption, Paginated } from "@/shared/types/api"
 
+import { leadsService, type GetLeadsParams } from "../../infrastructure/api/leads.service"
+
+import { leadKeys } from "./leads.keys"
+
 import type { AdvancedSearchRequest } from "../../domain/advanced-filter.types"
 import type {
   CreateLeadRequest,
@@ -10,9 +14,7 @@ import type {
   LeadNoteRequest,
   LeadStatusUpdateRequest
 } from "../../domain/types"
-import { leadsService, type GetLeadsParams } from "../../infrastructure/api/leads.service"
 
-import { leadKeys } from "./leads.keys"
 
 /**
  * The list read.

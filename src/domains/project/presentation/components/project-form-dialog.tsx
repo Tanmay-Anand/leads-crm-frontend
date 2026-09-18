@@ -18,8 +18,9 @@ import { Input } from "@/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 import { Textarea } from "@/shared/ui/textarea"
 
-import type { ProjectDto } from "../../domain/types"
 import { useCreateProject, useUpdateProject } from "../hooks/use-projects"
+
+import type { ProjectDto } from "../../domain/types"
 
 const PROJECT_STAGES = ["PLANNING", "PRE_LAUNCH", "LAUNCHED", "DELIVERED"] as const
 const PROJECT_TYPES = ["RESIDENTIAL_APARTMENT", "RESIDENTIAL_VILLA", "COMMERCIAL", "MIXED_USE"] as const

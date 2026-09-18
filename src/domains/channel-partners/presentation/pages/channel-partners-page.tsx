@@ -6,6 +6,7 @@ import { formatDate, titleCase } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { DataTable, sortingToApiFormat } from "@/shared/ui/common/data-table"
+import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
 import {
   DropdownMenu,
@@ -15,10 +16,8 @@ import {
 } from "@/shared/ui/dropdown-menu"
 import { Page, PageHeader } from "@/shared/ui/layout/pages"
 
-import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 
 import { useChannelPartnersFilterStore } from "../../application/store/channel-partners-filter.store"
-import type { ChannelPartnerDto } from "../../domain/types"
 import { toChannelPartnerSearchFields } from "../../infrastructure/api/channel-partners.service"
 import { ChannelPartnerFormDialog } from "../components/channel-partner-form-dialog"
 import {
@@ -26,6 +25,8 @@ import {
   useChannelPartnerStats,
   useDeleteChannelPartner
 } from "../hooks/use-channel-partners"
+
+import type { ChannelPartnerDto } from "../../domain/types"
 
 const SEARCH_SCOPES: SearchFilter[] = [
   { id: "name", displayName: "Firm name" },

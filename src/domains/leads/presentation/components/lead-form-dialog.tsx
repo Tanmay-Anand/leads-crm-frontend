@@ -28,7 +28,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/shared/ui/textarea"
 
 import { leadFormDefaults, leadFormSchema, type LeadFormValues } from "../../domain/lead.schemas"
-import type { CreateLeadRequest, LeadDto } from "../../domain/types"
 import {
   useCreateLead,
   useLeadStatuses,
@@ -38,6 +37,8 @@ import {
   useTemperatures,
   useUpdateLead
 } from "../hooks/use-leads"
+
+import type { CreateLeadRequest, LeadDto } from "../../domain/types"
 
 const PROPERTY_CATEGORIES: LeadFormValues["propertyCategory"][] = [
   "RESIDENTIAL",
