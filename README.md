@@ -1,7 +1,11 @@
 # Leads CRM UI
 
 Frontend for the Leads CRM, built on the patterns of `builder-crm-ui` rather than a new
-architecture. Three modules: **Leads**, **Projects**, **Channel Partners**.
+architecture. Modules: **Leads**, **Meetings**, **Projects**, and **User Management** (Users plus
+a Roles & Permissions matrix editor). **Channel Partners** still exists as a route and API, but is
+unreachable from the nav or by URL - this tenant is itself the broker/channel-partner, so tracking
+external partner brokers referring leads to a developer doesn't apply; see
+`routes/_protected/channel-partners`'s own class doc.
 
 React 19, Vite 7, TypeScript, TanStack Router + Query + Table, Zustand, Tailwind v4, shadcn/Radix,
 react-hook-form + Zod, AWS Amplify.
@@ -27,33 +31,30 @@ banner; sign-in itself will not work until a pool exists. See the backend README
 
 ## Deployment
 
-Hosted on **AWS Amplify Hosting**, which builds from `amplify.yml` on every push to `main`.
+**Currently hosted on Vercel**, not Amplify - `vercel.json` proxies `/leads-crm/*` straight to the
+backend host's IP and rewrites everything else to `/` for the SPA router. An `amplify.yml` also
+still exists in this repo from an earlier hosting setup; it is not what serves the live app and has
+not been kept up to date. If you're setting up hosting from scratch, follow Vercel's own GitHub
+import flow (connect the repo, framework preset "Vite", build command `npm run build`, output
+`dist`) and set the environment variables below on the Vercel project - do not follow the Amplify
+instructions this section used to have.
 
-**1. Create and connect the app.** In the
-[Amplify console](https://console.aws.amazon.com/amplify): *Create new app* → *GitHub* → authorise
-the AWS Amplify GitHub App → pick `Tanmay-Anand/leads-crm-frontend`, branch `main`. Amplify detects
-`amplify.yml` on its own; do not let it generate one.
+**Environment variables to set on the hosting platform** (never in the repo - `env.ts` throws at
+module load if a required one is missing, so a misconfigured deploy fails the build with the
+variable named rather than shipping a bundle that breaks at runtime):
 
-This step is deliberately manual. Connecting a repository from the CLI needs a GitHub personal
-access token passed to `create-app`, which is a worse trade than clicking through the OAuth flow
-once.
+| Variable | Value |
+| --- | --- |
+| `VITE_AWS_COGNITO_USER_POOL_ID` | from the backend's Cognito provisioning |
+| `VITE_AWS_COGNITO_USER_POOL_CLIENT_ID` | from the backend's Cognito provisioning |
+| `VITE_AWS_REGION` | `ap-south-1` |
+| `VITE_SERVER_URL` | leave unset - `vercel.json`'s rewrite makes the API same-origin, same as the Vite dev proxy does locally |
+| `VITE_ENGAGETO_API_KEY` | the WhatsApp chat integration's key - see `.env.example` for why it's a real credential despite being a `VITE_*` var |
 
-**2. Configure it** from the backend repo, which knows the Cognito and CloudFront values:
-
-```bash
-API_URL=https://<cloudfront-domain> AWS_PROFILE=personal ./scripts/provision-amplify.sh
-```
-
-That sets the five `VITE_*` variables and the SPA rewrite. The rewrite matters: without it `/leads`
-returns 404 on a hard refresh, because the router owns that path but Amplify looks for a file at it.
-
-**3. Allow the origin on the API.** Set `APP_CORS_ORIGINS` in the host's `/opt/leads-crm/.env` to
-the Amplify URL and restart the stack. Until then the site loads and every request is blocked by
-CORS — it fails only in the browser, so `curl` against the API will look perfectly healthy.
-
-Environment variables live on the Amplify app, never in the repo. `env.ts` throws at module load
-if one is missing, so a misconfigured app fails the build with the variable named rather than
-shipping a bundle that breaks at runtime.
+**Allow the origin on the API.** Set `APP_CORS_ORIGINS` in the backend host's `/opt/leads-crm/.env`
+to whatever origin actually serves the frontend and restart the stack. Until then the site loads
+and every request is blocked by CORS - it fails only in the browser, so `curl` against the API
+will look perfectly healthy.
 
 ## Structure
 
@@ -102,6 +103,38 @@ type, allowed operators and options source; `AdvancedFilterDrawer` renders contr
 each dropdown's options are fetched only when it opens. Adding a filterable field on the server
 adds a control here with no frontend change.
 
+## Authorization (RBAC)
+
+Mirrors the backend's two-layer model (see the backend README) rather than the reference's. The
+core fix relative to `builder-crm-ui`: it uses `permissions === null` to mean "unrestricted", and
+`getPermissionsFromCache()` returns `null` for *both* "unrestricted" and "not loaded yet" - so a
+restricted user can see the whole UI for a frame on a hard reload, and (a second, separate bug) its
+route guard does `permissions.some(async p => ...)`, where an async callback always returns a
+truthy Promise, so the guard never actually denies anything.
+
+`domains/authorization/domain/permission.types.ts` replaces the sentinel with an explicit
+discriminated union (`loading` / `unauthenticated` / `unrestricted` / `restricted`), and
+`application/route-guards.ts`'s `requireRoutePermission` is a synchronous rewrite. `GET /users/me`
+populates the cache once, in `_protected`'s `beforeLoad`, before anything renders - a failure there
+(expired token, a backend blip) falls back to `/signin` rather than crashing into the generic error
+boundary, which is what happens if that fetch is left to throw uncaught into a route guard.
+
+- **`RequirePermission`/`usePermission`** (`shared/ui/common/require-permission.tsx`) - reactive,
+  built on `useQuery`, unlike the reference's bare cache read. Convention: `RequirePermission` to
+  hide a create affordance, `hasPermission()` to *disable* (not hide) a row action, since hiding
+  row actions makes menus jump between rows.
+- **The permission matrix** (`domains/role-management`) renders from `GET /permissions/catalog`,
+  never from a hardcoded list, and fixes two reference bugs: a parent checkbox's `checked` state
+  derives from its own permission plus its children's, but the reference's toggle only ever flips
+  the parent's *own* action - so an indeterminate parent can never be cleared by clicking it. And a
+  child's label there comes from `key.split("/")[1]`, the wrong segment past one level of nesting.
+- **Users tab** (`domains/user-management`) - a Sheet-hosted create/edit form with no password
+  field on edit at all (a separately gated "Reset password" row action instead), and `/users` and
+  `/roles` as two real routes under `/user-management`, not `?tab=` state, so each tab can carry
+  its own guard and search schema.
+- An eslint `no-restricted-imports` rule keeps the non-reactive permission-cache read
+  (`application/permission-cache.ts`, for `beforeLoad` only) out of `presentation/` and `ui/` code.
+
 ## Deviations from `builder-crm-ui`
 
 ### 1. One service, not a gateway of many
@@ -115,7 +148,7 @@ shape callers use is unchanged.
 Ported: the sign-in route and form, the new-password challenge, the Amplify provider, the auth
 provider and the protected-route guard. Dropped: sign-up, forgot password, email verification,
 subscription checks, reCAPTCHA, and the platform-user builder-selection screen — none are needed
-for these three modules.
+here.
 
 The tenant comes from the signed-in user's `custom:tenantId` claim rather than from a builder
 picker. `tenantSession` keeps the setter, so a platform user could be pointed at a tenant without
@@ -137,15 +170,19 @@ lives in one place.
 ### 5. Dropped wholesale
 
 Datadog RUM, Mixpanel, Storybook, Playwright, the guided tour, saved filters, the audit-trail
-panel, the info panel, permissions/RBAC route guards, the craft.js page builder, three.js, TipTap,
-Google Maps address entry, the multi-step lead wizard (a single dialog replaces it), bulk upload
-and export dialogs.
+panel, the info panel, the craft.js page builder, three.js, TipTap, Google Maps address entry, the
+multi-step lead wizard (a single dialog replaces it), bulk upload and export dialogs.
+
+Permissions/RBAC route guards were dropped **at first**, then ported back in - see
+[Authorization](#authorization-rbac) below. They are not the reference's implementation; they fix
+two bugs it has.
 
 ### 6. Smaller things
 
-- Hosted on Amplify rather than Vercel, which is what `builder-crm-ui` uses. The build spec moves
-  from `vercel.json` to `amplify.yml` and the SPA rewrite from a Vercel rewrite to an Amplify
-  custom rule; nothing in `src/` differs.
+- Currently hosted on Vercel - see [Deployment](#deployment). This flipped at least once already
+  (an earlier pass moved it *to* Amplify, away from `builder-crm-ui`'s own Vercel setup); check
+  which config file actually matches the live URL before trusting either `vercel.json` or
+  `amplify.yml` at face value.
 - `src/routeTree.gen.ts` is committed, as it is in the reference. It is generated code, so the
   instinct is to ignore it — but `npm run build` runs `tsc -b` before `vite build`, and the
   plugin that generates it only runs during the Vite step. On a fresh clone the typecheck fails
@@ -158,14 +195,20 @@ and export dialogs.
 
 ## Verified
 
-- `npm run build` — clean.
-- `tsc -b --force` — no type errors under `strict`, `noUnusedLocals`, `noUnusedParameters`.
-- Dev server renders: `/` redirects to `/leads`, the guard redirects to `/signin`, and the sign-in
-  screen renders with the design system intact.
+- `npm run build`, `npm run typecheck`, `npm run lint` — all clean.
+- `npm run test` (Vitest, scoped to pure logic - `grants()`/`checkPermission()`'s truth table,
+  where every reference RBAC bug lives) — passing.
+- Dev server renders: `/` redirects to the first route the signed-in user actually has `view`
+  access to (not a hard-coded `/leads`), the guard redirects to `/signin`, and the sign-in screen
+  renders with the design system intact.
 - Against the provisioned pool, a deliberately wrong password returns *"Incorrect email or
-  password"* — so Amplify reaches Cognito in `ap-south-1`, SRP works, and the Cognito error
-  mapping in `auth-errors.ts` works.
+  password"* — Cognito reachability, SRP, and the error mapping in `auth-errors.ts` all work.
+- Signed in as an existing `TENANT_ADMIN`: every screen (Leads, Meetings, Projects, User
+  Management) renders against live data; a restricted role sees only the nav entries it has `view`
+  access to, and a hard reload of a restricted screen shows no flash of ungated UI.
 
-The authenticated shell — the three list screens, their tables and forms — has not been exercised
-against live data. The first user is in `FORCE_CHANGE_PASSWORD` and only the account owner has the
-temporary password Cognito emailed.
+**Known gap:** creating a user, resetting a password, or toggling one active/inactive all end in a
+real Cognito Admin API call on the backend, which needs AWS credentials scoped to the pool in the
+backend's `.env` - see that repo's README. This frontend's own validation, role/custom-role
+pickers, and permission gating are all exercised and correct; only that one backend-side write
+path is currently blocked pending those credentials.
