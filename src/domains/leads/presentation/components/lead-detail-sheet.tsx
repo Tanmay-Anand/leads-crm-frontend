@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 
 import { Pencil, Plus } from "lucide-react"
 
+import { LeadMeetingsPanel } from "@/domains/meetings/presentation/components/lead-meetings-panel"
 import { useProjectNames } from "@/domains/project/presentation/hooks/use-projects"
 import { broadcastLeadClosed, broadcastLeadOpened } from "@/shared/lib/ai-sdk-broadcast"
 import { cn, formatDate, titleCase, toDialablePhoneNumber } from "@/shared/lib/utils"
@@ -135,6 +136,9 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
             <TabsTrigger value="activity" className="flex-1">
               Activity
             </TabsTrigger>
+            <TabsTrigger value="meetings" className="flex-1">
+              Meetings
+               </TabsTrigger>
             <TabsTrigger value="whatsapp" className="flex-1">
               WhatsApp Chat
             </TabsTrigger>
@@ -282,6 +286,9 @@ export function LeadDetailSheet({ lead, onOpenChange, onEdit }: LeadDetailSheetP
             )}
           </TabsContent>
 
+          <TabsContent value="meetings" className="min-h-0 flex-1 overflow-y-auto pt-4">
+            <LeadMeetingsPanel lead={current} />
+              </TabsContent>
           <TabsContent value="whatsapp" className="min-h-0 flex-1 overflow-y-auto pt-4">
             {waLoading ? (
               <p className="text-muted-foreground py-6 text-center text-sm">Loading conversation…</p>
