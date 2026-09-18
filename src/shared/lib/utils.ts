@@ -89,6 +89,18 @@ export const toApiDate = (date?: Date | null): string | undefined => {
   return `${year}-${month}-${day}`
 }
 
+/**
+ * Digits-only phone number for a provider that wants countryCode+mobile with no separators (e.g.
+ * "919002715651"). Guards against double-prefixing when the mobile field was already saved with
+ * the country code baked in.
+ */
+export const toDialablePhoneNumber = (mobile?: string | null, countryCode?: string | null): string => {
+  const mobileDigits = (mobile ?? "").replace(/\D/g, "")
+  const countryDigits = (countryCode ?? "").replace(/\D/g, "")
+  if (!countryDigits || mobileDigits.startsWith(countryDigits)) return mobileDigits
+  return `${countryDigits}${mobileDigits}`
+}
+
 /** SCREAMING_SNAKE becomes Title Case, for enum values rendered without a server label. */
 export const titleCase = (value?: string | null): string => {
   if (!value) return "-"
