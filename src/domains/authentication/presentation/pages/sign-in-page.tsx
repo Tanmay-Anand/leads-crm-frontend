@@ -9,7 +9,6 @@ import { env } from "@/infrastructure/config/env"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
-import { Input } from "@/shared/ui/input"
 
 import {
   newPasswordSchema,
@@ -17,6 +16,16 @@ import {
   type NewPasswordFormValues,
   type SignInFormValues
 } from "../../domain/services/schemas"
+
+/**
+ * The shared `Input` component's visible border/background lives on an outer wrapper div that
+ * hardcodes its own `rounded-sm`/`h-8` - a `className` passed to `Input` only ever reaches the
+ * inner, borderless `<input>`, so it cannot make the visible box taller or more rounded. This page
+ * wants a distinctly pill-shaped field the shared component isn't built to produce, so it styles a
+ * plain `<input>` directly instead of fighting that wrapper.
+ */
+const fieldClassName =
+  "border-input/60 bg-background placeholder:text-muted-foreground/60 text-foreground h-11 w-full rounded-xl border px-4 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
 
 export default function SignInPage() {
   const { signIn, confirmNewPassword } = useAuth()
@@ -132,12 +141,7 @@ export default function SignInPage() {
                     <FormItem>
                       <FormLabel>New password</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          autoComplete="new-password"
-                          className="h-11 rounded-xl"
-                        />
+                        <input {...field} type="password" autoComplete="new-password" className={fieldClassName} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -151,12 +155,7 @@ export default function SignInPage() {
                     <FormItem>
                       <FormLabel>Confirm password</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          autoComplete="new-password"
-                          className="h-11 rounded-xl"
-                        />
+                        <input {...field} type="password" autoComplete="new-password" className={fieldClassName} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -176,12 +175,12 @@ export default function SignInPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
+                        <input
                           {...field}
                           type="email"
                           autoComplete="username"
                           placeholder="you@company.com"
-                          className="h-11 rounded-xl"
+                          className={fieldClassName}
                         />
                       </FormControl>
                       <FormMessage />
@@ -196,12 +195,7 @@ export default function SignInPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          autoComplete="current-password"
-                          className="h-11 rounded-xl"
-                        />
+                        <input {...field} type="password" autoComplete="current-password" className={fieldClassName} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

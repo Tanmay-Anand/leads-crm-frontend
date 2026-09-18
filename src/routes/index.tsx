@@ -21,7 +21,14 @@ export const Route = createFileRoute("/")({
       throw redirect({ to: "/signin", search: { redirect: location.href } })
     }
 
-    const me = await context.queryClient.ensureQueryData(getMeQueryOptions())
+    // A failed /me here must not crash into the generic error boundary - see _protected/route.tsx's
+    // matching comment. Fall back to /signin, same as an unauthenticated visitor.
+    let me
+    try {
+      me = await context.queryClient.ensureQueryData(getMeQueryOptions())
+    } catch {
+      throw redirect({ to: "/signin", search: { redirect: location.href } })
+    }
     throw redirect({ to: getFirstAccessibleRoute(sidebarItems, toPermissionState(me, false)) })
   }
 })
