@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vitest/config" />
 import { fileURLToPath } from "node:url"
 import path from "path"
 
@@ -42,6 +43,12 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/engageto-api/, "/api")
       }
     }
+  },
+  // Scoped to pure logic (permission-policy's grants() truth table) - no jsdom, no component
+  // tests. This is the layer every reference bug in the RBAC port lives in.
+  test: {
+    environment: "node",
+    include: ["src/**/*.test.ts"]
   },
   build: {
     sourcemap: false,

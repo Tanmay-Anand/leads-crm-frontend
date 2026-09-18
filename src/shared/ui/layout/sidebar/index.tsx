@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 
+import { usePermissionState } from "@/domains/authorization/presentation/hooks/use-authorization-queries"
 import { cn } from "@/shared/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip"
 
 import { sidebarItems } from "./sidebar.config"
+import { filterNavByPermission } from "./sidebar.utils"
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -12,6 +14,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+  const permissionState = usePermissionState()
+  const visibleItems = filterNavByPermission(sidebarItems, permissionState)
+
   return (
     <aside
       className={cn(
@@ -28,7 +33,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       <nav className="flex-1 space-y-1 px-2 py-2">
         <TooltipProvider delayDuration={0}>
-          {sidebarItems.map(item => {
+          {visibleItems.map(item => {
             const link = (
               <Link
                 key={item.to}

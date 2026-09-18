@@ -12,10 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
+import { Route as ProtectedForbiddenRouteImport } from './routes/_protected/forbidden'
+import { Route as ProtectedUserManagementRouteRouteImport } from './routes/_protected/user-management/route'
 import { Route as AuthSigninIndexRouteImport } from './routes/_auth/signin/index'
 import { Route as ProtectedChannelPartnersIndexRouteImport } from './routes/_protected/channel-partners/index'
 import { Route as ProtectedLeadsIndexRouteImport } from './routes/_protected/leads/index'
 import { Route as ProtectedProjectsIndexRouteImport } from './routes/_protected/projects/index'
+import { Route as ProtectedUserManagementRolesIndexRouteImport } from './routes/_protected/user-management/roles/index'
+import { Route as ProtectedUserManagementUsersIndexRouteImport } from './routes/_protected/user-management/users/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +34,17 @@ const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedForbiddenRoute = ProtectedForbiddenRouteImport.update({
+  id: '/forbidden',
+  path: '/forbidden',
+  getParentRoute: () => ProtectedRouteRoute,
+} as any)
+const ProtectedUserManagementRouteRoute =
+  ProtectedUserManagementRouteRouteImport.update({
+    id: '/user-management',
+    path: '/user-management',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 const AuthSigninIndexRoute = AuthSigninIndexRouteImport.update({
   id: '/signin/',
   path: '/signin/',
@@ -51,45 +66,91 @@ const ProtectedProjectsIndexRoute = ProtectedProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const ProtectedUserManagementRolesIndexRoute =
+  ProtectedUserManagementRolesIndexRouteImport.update({
+    id: '/roles/',
+    path: '/roles/',
+    getParentRoute: () => ProtectedUserManagementRouteRoute,
+  } as any)
+const ProtectedUserManagementUsersIndexRoute =
+  ProtectedUserManagementUsersIndexRouteImport.update({
+    id: '/users/',
+    path: '/users/',
+    getParentRoute: () => ProtectedUserManagementRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/user-management': typeof ProtectedUserManagementRouteRouteWithChildren
+  '/forbidden': typeof ProtectedForbiddenRoute
   '/signin/': typeof AuthSigninIndexRoute
   '/channel-partners/': typeof ProtectedChannelPartnersIndexRoute
   '/leads/': typeof ProtectedLeadsIndexRoute
   '/projects/': typeof ProtectedProjectsIndexRoute
+  '/user-management/roles/': typeof ProtectedUserManagementRolesIndexRoute
+  '/user-management/users/': typeof ProtectedUserManagementUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/user-management': typeof ProtectedUserManagementRouteRouteWithChildren
+  '/forbidden': typeof ProtectedForbiddenRoute
   '/signin': typeof AuthSigninIndexRoute
   '/channel-partners': typeof ProtectedChannelPartnersIndexRoute
   '/leads': typeof ProtectedLeadsIndexRoute
   '/projects': typeof ProtectedProjectsIndexRoute
+  '/user-management/roles': typeof ProtectedUserManagementRolesIndexRoute
+  '/user-management/users': typeof ProtectedUserManagementUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteRouteWithChildren
+  '/_protected/user-management': typeof ProtectedUserManagementRouteRouteWithChildren
+  '/_protected/forbidden': typeof ProtectedForbiddenRoute
   '/_auth/signin/': typeof AuthSigninIndexRoute
   '/_protected/channel-partners/': typeof ProtectedChannelPartnersIndexRoute
   '/_protected/leads/': typeof ProtectedLeadsIndexRoute
   '/_protected/projects/': typeof ProtectedProjectsIndexRoute
+  '/_protected/user-management/roles/': typeof ProtectedUserManagementRolesIndexRoute
+  '/_protected/user-management/users/': typeof ProtectedUserManagementUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin/' | '/channel-partners/' | '/leads/' | '/projects/'
+  fullPaths:
+    | '/'
+    | '/user-management'
+    | '/forbidden'
+    | '/signin/'
+    | '/channel-partners/'
+    | '/leads/'
+    | '/projects/'
+    | '/user-management/roles/'
+    | '/user-management/users/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/channel-partners' | '/leads' | '/projects'
+  to:
+    | '/'
+    | '/user-management'
+    | '/forbidden'
+    | '/signin'
+    | '/channel-partners'
+    | '/leads'
+    | '/projects'
+    | '/user-management/roles'
+    | '/user-management/users'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_protected'
+    | '/_protected/user-management'
+    | '/_protected/forbidden'
     | '/_auth/signin/'
     | '/_protected/channel-partners/'
     | '/_protected/leads/'
     | '/_protected/projects/'
+    | '/_protected/user-management/roles/'
+    | '/_protected/user-management/users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -121,6 +182,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/forbidden': {
+      id: '/_protected/forbidden'
+      path: '/forbidden'
+      fullPath: '/forbidden'
+      preLoaderRoute: typeof ProtectedForbiddenRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/user-management': {
+      id: '/_protected/user-management'
+      path: '/user-management'
+      fullPath: '/user-management'
+      preLoaderRoute: typeof ProtectedUserManagementRouteRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
     '/_auth/signin/': {
       id: '/_auth/signin/'
       path: '/signin'
@@ -149,6 +224,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProjectsIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/user-management/roles/': {
+      id: '/_protected/user-management/roles/'
+      path: '/roles'
+      fullPath: '/user-management/roles/'
+      preLoaderRoute: typeof ProtectedUserManagementRolesIndexRouteImport
+      parentRoute: typeof ProtectedUserManagementRouteRoute
+    }
+    '/_protected/user-management/users/': {
+      id: '/_protected/user-management/users/'
+      path: '/users'
+      fullPath: '/user-management/users/'
+      preLoaderRoute: typeof ProtectedUserManagementUsersIndexRouteImport
+      parentRoute: typeof ProtectedUserManagementRouteRoute
+    }
   }
 }
 
@@ -164,13 +253,36 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface ProtectedUserManagementRouteRouteChildren {
+  ProtectedUserManagementRolesIndexRoute: typeof ProtectedUserManagementRolesIndexRoute
+  ProtectedUserManagementUsersIndexRoute: typeof ProtectedUserManagementUsersIndexRoute
+}
+
+const ProtectedUserManagementRouteRouteChildren: ProtectedUserManagementRouteRouteChildren =
+  {
+    ProtectedUserManagementRolesIndexRoute:
+      ProtectedUserManagementRolesIndexRoute,
+    ProtectedUserManagementUsersIndexRoute:
+      ProtectedUserManagementUsersIndexRoute,
+  }
+
+const ProtectedUserManagementRouteRouteWithChildren =
+  ProtectedUserManagementRouteRoute._addFileChildren(
+    ProtectedUserManagementRouteRouteChildren,
+  )
+
 interface ProtectedRouteRouteChildren {
+  ProtectedUserManagementRouteRoute: typeof ProtectedUserManagementRouteRouteWithChildren
+  ProtectedForbiddenRoute: typeof ProtectedForbiddenRoute
   ProtectedChannelPartnersIndexRoute: typeof ProtectedChannelPartnersIndexRoute
   ProtectedLeadsIndexRoute: typeof ProtectedLeadsIndexRoute
   ProtectedProjectsIndexRoute: typeof ProtectedProjectsIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
+  ProtectedUserManagementRouteRoute:
+    ProtectedUserManagementRouteRouteWithChildren,
+  ProtectedForbiddenRoute: ProtectedForbiddenRoute,
   ProtectedChannelPartnersIndexRoute: ProtectedChannelPartnersIndexRoute,
   ProtectedLeadsIndexRoute: ProtectedLeadsIndexRoute,
   ProtectedProjectsIndexRoute: ProtectedProjectsIndexRoute,

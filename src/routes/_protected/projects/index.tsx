@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 import { z } from "zod"
 
+import { requireRoutePermission } from "@/domains/authorization/application/route-guards"
 import ProjectsPage from "@/domains/project/presentation/pages/projects-page"
 
 const projectsSearchSchema = z.object({
@@ -14,6 +15,11 @@ const projectsSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/_protected/projects/")({
+  beforeLoad: ({ context }) => {
+    if (!requireRoutePermission(context.queryClient, "view", "projects")) {
+      throw redirect({ to: "/forbidden" })
+    }
+  },
   validateSearch: projectsSearchSchema,
   component: ProjectsPage
 })

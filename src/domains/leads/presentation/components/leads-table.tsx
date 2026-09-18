@@ -7,6 +7,7 @@ import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { DataTable } from "@/shared/ui/common/data-table"
 import type { ColumnDef, PaginationState, SearchFilter, SortingState, VisibilityState } from "@/shared/ui/common/data-table"
+import { usePermission } from "@/shared/ui/common/require-permission"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +90,12 @@ export function LeadsTable({
   onEdit,
   onDelete
 }: LeadsTableProps) {
+  const { hasPermission } = usePermission()
+  // Row actions are disabled, not hidden - Phase 10's convention. Hiding a row action makes menus
+  // jump between rows, unlike hiding a page-level affordance such as the "New lead" button below.
+  const canUpdate = hasPermission("update", "leads")
+  const canDelete = hasPermission("delete", "leads")
+
   const columns = useMemo<ColumnDef<LeadDto, unknown>[]>(
     () => [
       {
@@ -226,11 +233,15 @@ export function LeadsTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" onClick={event => event.stopPropagation()}>
-              <DropdownMenuItem onClick={() => onEdit(row.original)}>
+              <DropdownMenuItem disabled={!canUpdate} onClick={() => onEdit(row.original)}>
                 <Pencil className="size-3.5" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={!canDelete}
+                onClick={() => onDelete(row.original)}
+              >
                 <Trash2 className="size-3.5" />
                 Delete
               </DropdownMenuItem>
@@ -239,7 +250,7 @@ export function LeadsTable({
         )
       }
     ],
-    [onEdit, onDelete]
+    [onEdit, onDelete, canUpdate, canDelete]
   )
 
   return (
@@ -279,7 +290,7 @@ export function LeadsTable({
         showFilter: true,
         showColumnVisibility: true,
         showPagination: true,
-        addButton: { label: "New lead", onClick: onAdd }
+        addButton: hasPermission("add", "leads") ? { label: "New lead", onClick: onAdd } : undefined
       }}
     />
   )
