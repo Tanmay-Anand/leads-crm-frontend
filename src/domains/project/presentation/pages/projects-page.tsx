@@ -9,6 +9,7 @@ import { Button } from "@/shared/ui/button"
 import { DataTable, sortingToApiFormat } from "@/shared/ui/common/data-table"
 import type { ColumnDef, SearchFilter } from "@/shared/ui/common/data-table"
 import { KpiCard, KpiSection } from "@/shared/ui/common/kpi-section"
+import { usePermission } from "@/shared/ui/common/require-permission"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,9 @@ export default function ProjectsPage() {
 
   const { data: stats, isLoading: statsLoading } = useProjectStats()
   const deleteProject = useDeleteProject()
+  const { hasPermission } = usePermission()
+  const canUpdate = hasPermission("update", "projects")
+  const canDelete = hasPermission("delete", "projects")
 
   const { data: page, isFetching } = useProjectsPaginated({
     page: pagination.pageIndex,
@@ -156,6 +160,7 @@ export default function ProjectsPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" onClick={event => event.stopPropagation()}>
               <DropdownMenuItem
+                disabled={!canUpdate}
                 onClick={() => {
                   setEditing(row.original)
                   setFormOpen(true)
@@ -164,7 +169,11 @@ export default function ProjectsPage() {
                 <Pencil className="size-3.5" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => handleDelete(row.original)}>
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={!canDelete}
+                onClick={() => handleDelete(row.original)}
+              >
                 <Trash2 className="size-3.5" />
                 Delete
               </DropdownMenuItem>
@@ -176,7 +185,7 @@ export default function ProjectsPage() {
     // handleDelete closes over a stable mutation; recreating the columns on every render would
     // remount every cell.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [canUpdate, canDelete]
   )
 
   return (
@@ -214,13 +223,15 @@ export default function ProjectsPage() {
         lockedColumns={["name", "actions"]}
         config={{
           showFilter: false,
-          addButton: {
-            label: "New project",
-            onClick: () => {
-              setEditing(null)
-              setFormOpen(true)
-            }
-          }
+          addButton: hasPermission("add", "projects")
+            ? {
+                label: "New project",
+                onClick: () => {
+                  setEditing(null)
+                  setFormOpen(true)
+                }
+              }
+            : undefined
         }}
       />
 

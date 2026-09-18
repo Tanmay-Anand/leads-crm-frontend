@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { getAuthStateQueryOptions } from "@/domains/authentication/presentation/hooks/use-authentication-queries"
+import { getMeQueryOptions } from "@/domains/authorization/presentation/hooks/use-authorization-queries"
 import { RouteErrorFallback } from "@/shared/ui/common/route-error-fallback"
 import { MainLayout } from "@/shared/ui/layout/main-layout"
 
@@ -16,6 +17,11 @@ export const Route = createFileRoute("/_protected")({
         search: { redirect: location.href }
       })
     }
+
+    // Sequential, not parallel: /me needs the bearer token and x-tenant-id the auth check above
+    // just resolved. Populates the cache every downstream permission gate (reactive or the
+    // synchronous route-guard read) relies on, before any child route renders.
+    await context.queryClient.ensureQueryData(getMeQueryOptions())
   },
   component: MainLayout,
   errorComponent: RouteErrorFallback

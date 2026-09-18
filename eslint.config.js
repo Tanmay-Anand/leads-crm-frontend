@@ -69,5 +69,26 @@ export default defineConfig([
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
       ]
     }
+  },
+  {
+    // permission-cache.ts is a synchronous, non-reactive cache read meant only for beforeLoad
+    // route guards (application/route-guards.ts). Reading it from presentation/ or ui/ code is
+    // exactly the reference's bug: nothing re-renders once /me resolves, so a restricted user
+    // briefly sees the full UI on a hard reload.
+    files: ["src/domains/*/presentation/**/*.{ts,tsx}", "src/shared/ui/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@/domains/authorization/application/permission-cache",
+              message:
+                "Non-reactive cache read, for beforeLoad route guards only. Use usePermissionState, RequirePermission or usePermission instead."
+            }
+          ]
+        }
+      ]
+    }
   }
 ])
