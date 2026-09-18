@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { FilterOption, Paginated } from "@/shared/types/api"
 
 import { leadsService, type GetLeadsParams } from "../../infrastructure/api/leads.service"
+import { whatsappService } from "../../infrastructure/api/whatsapp.service"
 
 import { leadKeys } from "./leads.keys"
 
@@ -145,6 +146,17 @@ export const useLeadNotes = (leadId?: string) =>
     queryKey: leadKeys.notes(leadId ?? ""),
     queryFn: () => leadsService.getNotes(leadId!, { size: 50 }),
     enabled: Boolean(leadId)
+  })
+
+export const useWhatsAppMessages = (phoneNumber?: string, page = 1) =>
+  useQuery({
+    queryKey: leadKeys.whatsappMessages(phoneNumber ?? "", page),
+    queryFn: () => whatsappService.getMessages(phoneNumber!, { pageNumber: page, pageSize: 50 }),
+    enabled: Boolean(phoneNumber),
+    // The conversation is someone else's inbox; poll gently rather than only on open, so a reply
+    // that comes in while the tab is sitting open still shows up without a manual refresh.
+    refetchInterval: 30 * 1_000,
+    retry: false
   })
 
 // ── Mutations ─────────────────────────────────────────────────────────────────
