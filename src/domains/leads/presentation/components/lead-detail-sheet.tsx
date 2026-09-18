@@ -2,10 +2,9 @@ import { useEffect, useState } from "react"
 
 import { Pencil, Plus } from "lucide-react"
 
-import { cn, formatDate, titleCase, toDialablePhoneNumber } from "@/shared/lib/utils"
 import { useProjectNames } from "@/domains/project/presentation/hooks/use-projects"
 import { broadcastLeadClosed, broadcastLeadOpened } from "@/shared/lib/ai-sdk-broadcast"
-import { formatDate, titleCase } from "@/shared/lib/utils"
+import { cn, formatDate, titleCase, toDialablePhoneNumber } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
