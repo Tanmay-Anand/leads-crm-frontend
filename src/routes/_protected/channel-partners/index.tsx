@@ -1,25 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { z } from "zod"
 
-import { requireRoutePermission } from "@/domains/authorization/application/route-guards"
-import ChannelPartnersPage from "@/domains/channel-partners/presentation/pages/channel-partners-page"
-
-const channelPartnersSearchSchema = z.object({
-  page: z.coerce.number().optional(),
-  size: z.coerce.number().optional(),
-  sort: z.string().optional(),
-  search: z.coerce.string().optional(),
-  searchFields: z.coerce.string().optional(),
-  fromDate: z.string().optional(),
-  toDate: z.string().optional()
-})
-
+/**
+ * Unreachable, not deleted. Channel Partners tracks external broker/agency partners referring
+ * leads to a developer - it does not apply when the tenant itself is the broker/channel partner,
+ * which every tenant using this product currently is. The feature (page, API, permission) is left
+ * intact rather than removed, in case a future tenant's business model needs it; this is only a
+ * routing-level hide, not a permission gate, so even a Tenant Admin (who bypasses permission
+ * checks entirely) cannot reach it through the URL either.
+ */
 export const Route = createFileRoute("/_protected/channel-partners/")({
-  beforeLoad: ({ context }) => {
-    if (!requireRoutePermission(context.queryClient, "view", "channel-partners")) {
-      throw redirect({ to: "/forbidden" })
-    }
-  },
-  validateSearch: channelPartnersSearchSchema,
-  component: ChannelPartnersPage
+  beforeLoad: () => {
+    throw redirect({ to: "/leads" })
+  }
 })
