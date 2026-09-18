@@ -23,5 +23,7 @@ export const leadKeys = {
   temperatures: () => [...leadKeys.all, "temperatures"] as const,
   tags: () => [...leadKeys.all, "tags"] as const,
   sourceCategories: () => [...leadKeys.all, "source-categories"] as const,
-  sourceTypes: (parentId?: string) => [...leadKeys.all, "source-types", parentId ?? "all"] as const
+  sourceTypes: (parentId?: string) => [...leadKeys.all, "source-types", parentId ?? "all"] as const,
+  whatsappMessages: (phoneNumber: string, page: number) =>
+    [...leadKeys.all, "whatsapp-messages", phoneNumber, page] as const
 }
