@@ -46,5 +46,17 @@ export const env = {
     region: String(import.meta.env.VITE_AWS_REGION ?? "ap-south-1")
   },
   /** False until a pool is provisioned. The sign-in screen uses this to explain itself. */
-  isAuthConfigured: missingAuthVars.length === 0
+  isAuthConfigured: missingAuthVars.length === 0,
+  /**
+   * Engageto WhatsApp API, called with its own Api-Key header rather than our usual auth.
+   *
+   * Relative by default so the request goes through the Vite dev proxy (see vite.config.ts),
+   * because Engageto does not send CORS headers for a browser origin and a direct call is
+   * rejected. Set VITE_ENGAGETO_API_URL to the full https://connect.engageto.in/api only where an
+   * equivalent server-side rewrite exists, such as a production hosting rule.
+   */
+  whatsapp: {
+    apiUrl: (import.meta.env.VITE_ENGAGETO_API_URL ?? "/engageto-api").replace(/\/$/, ""),
+    apiKey: String(import.meta.env.VITE_ENGAGETO_API_KEY ?? "")
+  }
 } as const
